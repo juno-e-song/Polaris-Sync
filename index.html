@@ -961,8 +961,13 @@ function renderProcSteps(activeIdx) {
    WHISPER API
 ═══════════════════════════════════════════ */
 async function transcribeAudio(file, apiKey) {
+  // ArrayBuffer로 변환 후 새 Blob 생성 (직렬화 오류 방지)
+  const arrayBuffer = await file.arrayBuffer();
+  const blob = new Blob([arrayBuffer], { type: file.type || 'audio/webm' });
+  const fileName = file.name || 'recording.webm';
+
   const formData = new FormData();
-  formData.append('file', file);
+  formData.append('file', blob, fileName);
   formData.append('model', 'whisper-large-v3-turbo');
   formData.append('language', 'ko');
   formData.append('response_format', 'text');
@@ -975,7 +980,7 @@ async function transcribeAudio(file, apiKey) {
 
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
-    throw new Error(err.error?.message || 'Whisper API 오류');
+    throw new Error(err.error?.message || `Whisper 오류 (${res.status})`);
   }
   return await res.text();
 }

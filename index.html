@@ -709,7 +709,7 @@ let state = {
   view: 'home',
   inputMode: 'audio',
   uploadedFile: null,
-  apiKey: localStorage.getItem('ps_api_key') || 'AIzaSyDs8Ameh1G22JGaLZYFrn-LnwpaVgR3VTY',
+  apiKey: localStorage.getItem('ps_api_key') || 'AIzaSyC1GdPoQAxD3ZVcGSezta76v_TcHTptgaE',
   jira: {
     domain:  localStorage.getItem('ps_jira_domain')  || DEFAULT_JIRA.domain,
     email:   localStorage.getItem('ps_jira_email')   || DEFAULT_JIRA.email,
@@ -1022,7 +1022,7 @@ ${transcript}
 }`;
 
   const res = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${apiKey}`,
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${apiKey}`,
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

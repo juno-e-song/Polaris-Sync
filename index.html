@@ -928,9 +928,9 @@ async function startAnalysis() {
     applyAnalysis(analysis || MOCK_ANALYSIS);
 
   } catch (err) {
-    console.error(err);
-    showToast('분석 중 오류. 샘플 데이터로 표시합니다.', 'error');
-    await new Promise(r => setTimeout(r, 1500));
+    console.error('분석 오류:', err);
+    showToast('⚠️ ' + (err.message || 'AI 분석 오류') + ' — 샘플로 표시', 'error');
+    await new Promise(r => setTimeout(r, 2000));
     applyAnalysis(MOCK_ANALYSIS);
   }
 }
@@ -1028,22 +1028,24 @@ ${transcript}
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: { temperature: 0.2, responseMimeType: 'application/json' },
+        generationConfig: { temperature: 0.2 },
       }),
     }
   );
 
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
-    throw new Error(err.error?.message || 'Gemini API 오류');
+    throw new Error(err.error?.message || `Gemini API 오류 (${res.status})`);
   }
 
   const data = await res.json();
   const content = data.candidates?.[0]?.content?.parts?.[0]?.text;
   if (!content) throw new Error('Gemini 응답 없음');
-  // JSON 파싱
-  const jsonMatch = content.match(/\{[\s\S]*\}/);
-  return JSON.parse(jsonMatch ? jsonMatch[0] : content);
+
+  // JSON 블록 추출
+  const jsonMatch = content.match(/```json\s*([\s\S]*?)```/) || content.match(/\{[\s\S]*\}/);
+  const jsonStr = jsonMatch ? (jsonMatch[1] || jsonMatch[0]) : content;
+  return JSON.parse(jsonStr);
 }
 
 /* ═══════════════════════════════════════════
